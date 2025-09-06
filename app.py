@@ -1,26 +1,29 @@
+import os
 import pandas as pd
 import difflib
+from flask import Flask, request, render_template
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from flask import Flask, request, render_template
 import mysql.connector
 
 app = Flask(__name__)
 
 # ------------------ Database ------------------
 db_config = {
-    "host": "localhost",
-    "user": "root",
-    "password": "",
-    "database": "smart_movie_db"
+    "host": os.environ.get("MYSQL_HOST"),
+    "user": os.environ.get("MYSQL_USER"),
+    "password": os.environ.get("MYSQL_PASSWORD"),
+    "database": os.environ.get("MYSQL_DB")
 }
 
 def get_db_connection():
     return mysql.connector.connect(**db_config)
 
 # ------------------ Movie Recommendation ------------------
-movies_data = pd.read_csv(r"C:\Users\siyar\OneDrive\Desktop\SmartMoviePortal\movies.csv")
+# Make sure movies.csv is in the root of your project
+movies_data = pd.read_csv("movies.csv")
 movies_data = movies_data.reset_index()
+
 selected_features = ['genres', 'keywords', 'tagline', 'cast', 'director']
 for feature in selected_features:
     movies_data[feature] = movies_data[feature].fillna('')
@@ -84,7 +87,7 @@ def book():
         cursor.close()
         conn.close()
 
-        # Pass booking info to template (with total_price!)
+        # Pass booking info to template
         return render_template(
             "book.html",
             movies=movies,
@@ -132,5 +135,7 @@ def recommend():
 
     return render_template("recommend.html")
 
+# ------------------ Run App ------------------
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Use environment PORT for Render deployment
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
