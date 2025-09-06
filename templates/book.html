@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Book Ticket</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header with logo -->
+        <header style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px;">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="MovieHive Logo" height="60">
+            <h1>Book a Movie Ticket</h1>
+        </header>
+
+        {% if success %}
+        <p style="color:green;">{{ success }}</p>
+        {% endif %}
+
+        <form method="POST">
+            Name: <input type="text" name="name" required><br><br>
+            Email: <input type="email" name="email" required><br><br>
+            Movie:
+            <select name="movie">
+                {% for m in movies %}
+                <option value="{{ m[0] }}">{{ m[1] }}</option>
+                {% endfor %}
+            </select><br><br>
+            Seat Number: <input type="text" name="seat" required placeholder="Ex: A1"><br><br>
+            Number of Seats: <input type="number" name="seats" min="1" max="4" value="1"><br><br>
+            <input type="submit" value="Book">
+        </form>
+        <br>
+        <a href="/">Home</a>
+
+        {% if seats is defined and seat_number is defined and movie_name is defined and total_price is defined %}
+        <script type="text/javascript">
+            // Text-to-Speech function
+            function speakBooking(seats, seat_number, movie_name, total_price) {
+                let message = `Your booking for ${seats} seat${seats > 1 ? 's' : ''}, 
+                               Seat Number ${seat_number}, for the movie ${movie_name}, 
+                               has been confirmed. Your total price is ${total_price} rupees. 
+                               Enjoy your movie!`;
+
+                let utterance = new SpeechSynthesisUtterance(message);
+                utterance.lang = "en-US";
+                utterance.rate = 1; // speed
+                utterance.pitch = 1; // tone
+                speechSynthesis.speak(utterance);
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                const seats = JSON.parse('{{ seats | tojson | safe }}');
+                const seat_number = JSON.parse('{{ seat_number | tojson | safe }}');
+                const movie_name = JSON.parse('{{ movie_name | tojson | safe }}');
+                const total_price = JSON.parse('{{ total_price | tojson | safe }}');
+
+                speakBooking(seats, seat_number, movie_name, total_price);
+            });
+        </script>
+        {% endif %}
+    </div>
+</body>
+
+</html>

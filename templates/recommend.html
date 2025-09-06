@@ -1,0 +1,48 @@
+
+<html>
+
+<head>
+    <title>Movie Recommendations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header with logo -->
+        <header style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px;">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="MovieHive Logo" height="60">
+            <h1>Movie Recommendation System</h1>
+        </header>
+
+        <form method="POST">
+            Enter Movie Name: <input type="text" name="movie_name" required>
+            <input type="submit" value="Recommend">
+        </form>
+        <br>
+
+        {% if message %}
+        <p style="color:red;">{{ message }}</p>
+        {% endif %}
+
+        {% if recommendations %}
+        <h3>Top 5 movies similar to {{ original_movie }}:</h3>
+        <ul>
+            {% for movie in recommendations %}
+            <li>{{ movie }}</li>
+            {% endfor %}
+        </ul>
+
+        <script src="{{ url_for('static', filename='js/voice.js') }}"></script>
+        <script type="text/javascript">
+            // Safely pass Python list to JS
+            const recs = JSON.parse('{{ recommendations | tojson | safe }}');
+            const original = JSON.parse('{{ original_movie | tojson | safe }}');
+            speakRecommendations(original, recs);
+        </script>
+        {% endif %}
+        <br>
+        <a href="/">Home</a>
+    </div>
+</body>
+
+</html>

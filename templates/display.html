@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Bookings</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header with logo -->
+        <header style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px;">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="MovieHive Logo" height="60">
+            <h1>All Bookings</h1>
+        </header>
+
+        <table border="1" cellpadding="5">
+            <tr>
+                <th>ID</th><th>Name</th><th>Email</th><th>Movie</th><th>Seat</th><th>Price</th><th>Time</th>
+            </tr>
+            {% for b in bookings %}
+            <tr>
+                <td>{{ b[0] }}</td><td>{{ b[1] }}</td><td>{{ b[2] }}</td>
+                <td>{{ b[3] }}</td><td>{{ b[4] }}</td><td>{{ b[5] }}</td><td>{{ b[6] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <a href="/">Home</a>
+    </div>
+</body>
+</html>
