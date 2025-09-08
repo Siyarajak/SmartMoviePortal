@@ -8,12 +8,16 @@ import mysql.connector
 app = Flask(__name__)
 
 # ------------------ Database ------------------
+import os
+
 db_config = {
-    "host": "localhost",
-    "user": "root",
-    "password": "",
-    "database": "smart_movie_db"
+    "host": "yamanote.proxy.rlwy.net",  # Railway host from your screenshot
+    "port": 53049,                       # Railway port
+    "user": "root",                      # Railway username
+    "password": "pezUygzQcxgbSvzznnIfTTMHQNRyRsyE",    # Replace with your actual Railway password
+    "database": "railway"                # Database name
 }
+
 
 def get_db_connection():
     return mysql.connector.connect(**db_config)
