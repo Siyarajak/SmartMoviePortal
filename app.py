@@ -20,14 +20,19 @@ def get_db_connection():
     return mysql.connector.connect(**db_config)
 
 # ------------------ Movie Recommendation ------------------
-# Make sure movies.csv is in the root of your project
-movies_data = pd.read_csv("movies.csv")
-movies_data = movies_data.reset_index()
+# Load only the required columns from movies.csv to save memory
+movies_data = pd.read_csv(
+    "movies.csv",
+    usecols=['title', 'genres', 'keywords', 'tagline', 'cast', 'director'],
+    dtype=str,
+    low_memory=False
+)
 
-selected_features = ['genres', 'keywords', 'tagline', 'cast', 'director']
-for feature in selected_features:
-    movies_data[feature] = movies_data[feature].fillna('')
+# Replace NaN with empty strings
+movies_data = movies_data.fillna('')
+movies_data = movies_data.reset_index(drop=True)
 
+# Combine selected features for recommendation
 combined_features = (
     movies_data['genres'] + ' ' +
     movies_data['keywords'] + ' ' +
@@ -36,10 +41,13 @@ combined_features = (
     movies_data['director']
 )
 
+# Create TF-IDF vectors and similarity matrix
 vectorizer = TfidfVectorizer()
 feature_vector = vectorizer.fit_transform(combined_features)
 similarity = cosine_similarity(feature_vector)
-list_of_all_titles = movies_data['title'].fillna('').astype(str).tolist()
+
+# List of all movie titles
+list_of_all_titles = movies_data['title'].astype(str).tolist()
 
 # ------------------ Routes ------------------
 @app.route("/")
@@ -87,7 +95,6 @@ def book():
         cursor.close()
         conn.close()
 
-        # Pass booking info to template
         return render_template(
             "book.html",
             movies=movies,
