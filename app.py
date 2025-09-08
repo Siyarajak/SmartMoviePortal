@@ -8,28 +8,15 @@ import mysql.connector
 app = Flask(__name__)
 
 # ------------------ Database ------------------
-# ------------------ Database ------------------
-import os
-import mysql.connector
+db_config = {
+    "host": "mysql.railway.internal",
+    "user": "root",
+    "password": "pezUygzQcxgbSvzznnIfTTMHQNRyRsyE",
+    "database": "railway"
+}
 
 def get_db_connection():
-    """
-    Connects to the Railway MySQL database using environment variables.
-    No credentials are hardcoded.
-    """
-    try:
-        conn = mysql.connector.connect(
-            host=os.environ.get("MYSQLHOST"),
-            port=int(os.environ.get("MYSQLPORT", 3306)),  # default 3306 if not set
-            user=os.environ.get("MYSQLUSER"),
-            password=os.environ.get("MYSQLPASSWORD"),
-            database=os.environ.get("MYSQLDATABASE")
-        )
-        return conn
-    except mysql.connector.Error as err:
-        print(f"Error connecting to the database: {err}")
-        return None
-
+    return mysql.connector.connect(**db_config)
 
 # ------------------ Movie Recommendation ------------------
 movies_data = pd.read_csv(
