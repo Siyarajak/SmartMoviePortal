@@ -8,19 +8,28 @@ import mysql.connector
 app = Flask(__name__)
 
 # ------------------ Database ------------------
+# ------------------ Database ------------------
 import os
-
-db_config = {
-    "host": "yamanote.proxy.rlwy.net",  # Railway host from your screenshot
-    "port": 53049,                       # Railway port
-    "user": "root",                      # Railway username
-    "password": "pezUygzQcxgbSvzznnIfTTMHQNRyRsyE",    # Replace with your actual Railway password
-    "database": "railway"                # Database name
-}
-
+import mysql.connector
 
 def get_db_connection():
-    return mysql.connector.connect(**db_config)
+    """
+    Connects to the Railway MySQL database using environment variables.
+    No credentials are hardcoded.
+    """
+    try:
+        conn = mysql.connector.connect(
+            host=os.environ.get("MYSQLHOST"),
+            port=int(os.environ.get("MYSQLPORT", 3306)),  # default 3306 if not set
+            user=os.environ.get("MYSQLUSER"),
+            password=os.environ.get("MYSQLPASSWORD"),
+            database=os.environ.get("MYSQLDATABASE")
+        )
+        return conn
+    except mysql.connector.Error as err:
+        print(f"Error connecting to the database: {err}")
+        return None
+
 
 # ------------------ Movie Recommendation ------------------
 movies_data = pd.read_csv(
