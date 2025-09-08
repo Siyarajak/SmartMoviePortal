@@ -9,10 +9,10 @@ app = Flask(__name__)
 
 # ------------------ Database ------------------
 db_config = {
-    "host": "mysql.railway.internal",
+    "host": "localhost",
     "user": "root",
-    "password": "pezUygzQcxgbSvzznnIfTTMHQNRyRsyE",
-    "database": "railway"
+    "password": "",
+    "database": "smart_movie_db"
 }
 
 def get_db_connection():
