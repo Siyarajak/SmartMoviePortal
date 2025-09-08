@@ -1,26 +1,24 @@
-import os
 import pandas as pd
 import difflib
-from flask import Flask, request, render_template
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from flask import Flask, request, render_template
 import mysql.connector
 
 app = Flask(__name__)
 
 # ------------------ Database ------------------
 db_config = {
-    "host": os.environ.get("MYSQL_HOST"),
-    "user": os.environ.get("MYSQL_USER"),
-    "password": os.environ.get("MYSQL_PASSWORD"),
-    "database": os.environ.get("MYSQL_DB")
+    "host": "localhost",
+    "user": "root",
+    "password": "",
+    "database": "smart_movie_db"
 }
 
 def get_db_connection():
     return mysql.connector.connect(**db_config)
 
 # ------------------ Movie Recommendation ------------------
-# Load only the required columns from movies.csv to save memory
 movies_data = pd.read_csv(
     "movies.csv",
     usecols=['title', 'genres', 'keywords', 'tagline', 'cast', 'director'],
@@ -28,11 +26,11 @@ movies_data = pd.read_csv(
     low_memory=False
 )
 
-# Replace NaN with empty strings
-movies_data = movies_data.fillna('')
-movies_data = movies_data.reset_index(drop=True)
+movies_data = movies_data.reset_index()
+selected_features = ['genres', 'keywords', 'tagline', 'cast', 'director']
+for feature in selected_features:
+    movies_data[feature] = movies_data[feature].fillna('')
 
-# Combine selected features for recommendation
 combined_features = (
     movies_data['genres'] + ' ' +
     movies_data['keywords'] + ' ' +
@@ -41,13 +39,10 @@ combined_features = (
     movies_data['director']
 )
 
-# Create TF-IDF vectors and similarity matrix
 vectorizer = TfidfVectorizer()
 feature_vector = vectorizer.fit_transform(combined_features)
 similarity = cosine_similarity(feature_vector)
-
-# List of all movie titles
-list_of_all_titles = movies_data['title'].astype(str).tolist()
+list_of_all_titles = movies_data['title'].fillna('').astype(str).tolist()
 
 # ------------------ Routes ------------------
 @app.route("/")
@@ -95,6 +90,7 @@ def book():
         cursor.close()
         conn.close()
 
+        # Pass booking info to template (with total_price!)
         return render_template(
             "book.html",
             movies=movies,
@@ -142,7 +138,5 @@ def recommend():
 
     return render_template("recommend.html")
 
-# ------------------ Run App ------------------
 if __name__ == "__main__":
-    # Use environment PORT for Render deployment
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(debug=True)
